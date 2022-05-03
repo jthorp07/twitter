@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
+    <link rel="stylesheet" href="styles/bootstrap-material-design.min.css">
+    <link rel="stylesheet" href="styles/main.css">
+    <title>Tweet Streamer</title>
+</head>
+
+<body id="twitterStreamerHome">
+    <h1>TWITTER STREAMER</h1>
+
+    <!-- The JS script will add rules here as they are received -->
+    <div id="ruleList" class="rule-display">
+
+        As you add rules, they'll show up here!
+
+    </div>
+
+    <!-- Used to toggle modes -->
+    <div id="modeBar" class="rule-add">
+
+        <div class="rule-add-fields">
+
+            <button id="basicMode" type="button" class="btn btn-outline-primary rule-field">Basic</button>
+            <button id="advancedMode" type="button" class="btn btn-outline-primary rule-field">Advanced</button>
+            <button id="checkboxMode" type="button" class="btn btn-outline-primary rule-field"
+                style="display:none">Checkbox</button>
+
+        </div>
+
+    </div>
+
+
+    <!-- Part of the page where rules can be modified before being added -->
+    <div class="rule-add">
+
+        <div id="currentRule" class="rule-add-fields">Current Rule:</div>
+
+        <!-- Action bar -->
+        <div id="basicBar" class="rule-add-fields">
+
+            <div class="text-input rule-field">
+
+                <label id="ruleKeywordLabel">Keywords:</label>
+                <input id="ruleKeywordInput">
+
+            </div>
+
+            <!-- Toggles flag: has:media (removes tweets without media) -->
+            <div class="toggle-button rule-field">
+
+                <button id="mediaToggleButton" type="button" class="btn btn-outline-danger">Has Media</button>
+
+            </div>
+
+            <!-- Toggles flag: -is:retweet (removes retweets) -->
+            <div class="toggle-button rule-field">
+
+                <button id="retweetToggleButton" type="button" class="btn btn-outline-danger">Remove Retweets</button>
+
+            </div>
+
+            <!-- Toggles flag: -is:nullcast (removes Tweets that are ads) -->
+            <div class="toggle-button rule-field">
+
+                <button id="adToggleButton" type="button" class="btn btn-outline-danger">Remove Ads</button>
+
+            </div>
+
+            <!-- Toggles flag: has:geo (removes Tweets that are ads) -->
+            <div class="toggle-button rule-field">
+
+                <button id="geoToggleButton" type="button" class="btn btn-outline-danger">Has Location Data</button>
+
+            </div>
+
+        </div>
+
+        <div id="advancedBar" class="rule-add-fields" style="display:none">
+
+            <div class="text-input rule-field">
+
+                <label id="ruleLabel">Rule:</label>
+                <input id="ruleInput">
+
+            </div>
+
+            <div class="text-input rule-field">
+
+                <label id="tagLabel">Tag:</label>
+                <input id="tagInput">
+
+            </div>
+
+        </div>
+
+        <div class="rule-add-fields rule-field">
+            <button id="addRule" type="button" class="btn btn-outline-primary rule-field">Add Rule</button>
+            <button id="clearRule" type="button" class="btn btn-outline-primary rule-field">Clear Rules</button>
+            <button id="startStream" type="button" class="btn btn-outline-primary rule-field">Start Streaming</button>
+            <button id="stopStream" disabled="true" type="button" class="btn btn-outline-secondary rule-field">Stop
+                Streaming</button>
+            <button id="viewStream" disabled="true" type="button" class="btn btn-outline-secondary rule-field">View
+                Stream</button>
+        </div>
+
+    </div>
+</body>
+
+<script src="scripts/jquery.min.js"></script>
+<script src="scripts/popper.js"></script>
+<script src="scripts/bootstrap-material-design.js"></script>
+<script>$("body").bootstrapMaterialDesign();</script>
+<script type="module" src="scripts/main.js"></script>
+
+</html>

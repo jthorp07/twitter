@@ -1,0 +1,21 @@
+{
+    "meta": {
+        "sent": "2022-04-25T01:04:59.643Z",
+        "summary": {
+            "created": 0,
+            "not_created": 1,
+            "valid": 0,
+            "invalid": 1
+        }
+    },
+    "errors": [
+        {
+            "value": "dog has:images -is:retweeted",
+            "details": [
+                "Reference to invalid operator 'is:retweeted'. Operator is not available in current product or product packaging. Please refer to complete available operator list at http://t.co/operators. (at position 20)"
+            ],
+            "title": "UnprocessableEntity",
+            "type": "https://api.twitter.com/2/problems/invalid-rules"
+        }
+    ]
+}
