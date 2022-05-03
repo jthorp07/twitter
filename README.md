@@ -1,5 +1,10 @@
 # **CSSE 343 - Twitter Lab**
+
+This repository is meant to serve as guidance for a lab in the class Cybercrime & Digital Forensics at Rose-Hulman Institute of Technology, but is also free to use by anyone who may be interested in having some quick fun with Twitter Developer accounts. When it is entirely finished, the webserver folder should contain both a backend and static frontend web server that can be used to modify and view `FilteredStream` streams from Twitter's API v2.
+
 ## **Getting Started**
+For the Cybercrime & Digital Forensics lab, guidance will be using Node.js version 16.10.0 and Visual Studio Code. Visual Studio Code can be downloaded from icrosoft for free, and a quick guide to installing Node.js will be provided below.
+
 ### **Installing Node.js**
 The scripts we will use for this lab are written in Node.js- a popular backend Javascript framework. To get started, we will first want to download and install Node.js, which can be found [here](https://nodejs.org/en/). After Node is installed, open a terminal (on Windows, this can be done by searching 'cmd') and enter the following command: `node -v`. You should see a response that looks something like this: `v16.10.0`. This is just the version of Node you have installed and can be used as a confirmation that Node is installed on your machine.
 
