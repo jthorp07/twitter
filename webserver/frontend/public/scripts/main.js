@@ -157,12 +157,12 @@ tweetstreamer.DataManager = class {
             fetch(`${tweetstreamer.apiUrl}stream/tweets`, {
                 method: 'GET'
             }).then(response => response.json())
-            .then(data => {
-                console.log(`[Client]: Received Tweets`);
-                this.latestTweets = data;
-                resolve(true);
-                return;
-            });
+                .then(data => {
+                    console.log(`[Client]: Received Tweets`);
+                    this.latestTweets = data;
+                    resolve(true);
+                    return;
+                });
         });
     }
 
@@ -182,6 +182,7 @@ tweetstreamer.PageController = class {
     constructor() {
 
         this.manager = new tweetstreamer.DataManager();
+        this.stopViewing = false;
         this.setListeners();
 
     }
@@ -317,22 +318,9 @@ tweetstreamer.PageController = class {
         const startStreamButton = document.querySelector('#startStream');
         startStreamButton.addEventListener('click', async () => {
 
-            /*
-             * TODO: Imeplement the following steps:
-             *
-             *      1. Request API to start stream (send rules in body)
-             * 
-             *      2. Await response
-             * 
-             *      3a. If response is success, enable 'view stream', 'stop stream'
-             * 
-             *      3b. If response is failure, pop up modal indicating failure
-             *
-             */
             let success = await this.manager.requestStartStream();
 
             if (success) {
-
 
                 console.log('[Client]: Enabling buttons');
                 let stopBtn = document.querySelector('#stopStream');
@@ -351,9 +339,7 @@ tweetstreamer.PageController = class {
 
             } else {
                 // TODO: Indicate failure
-
             }
-
         });
 
         const stopStreamButton = document.querySelector('#stopStream');
@@ -367,16 +353,12 @@ tweetstreamer.PageController = class {
 
                 let stopBtn = document.querySelector('#stopStream');
                 let viewBtn = document.querySelector('#viewStream');
-
                 let oldStop = stopBtn.getAttribute('class');
                 let oldView = viewBtn.getAttribute('class');
-
                 let newStop = oldStop.replace('primary', 'secondary');
                 let newView = oldView.replace('primary', 'secondary');
-
                 stopBtn.setAttribute('class', newStop);
                 viewBtn.setAttribute('class', newView);
-
                 stopBtn.setAttribute('disabled', 'true');
                 viewBtn.setAttribute('disabled', 'true');
 
@@ -386,9 +368,7 @@ tweetstreamer.PageController = class {
 
             } else {
                 // TODO: Indicate failure
-
             }
-
         });
 
         const viewStreamButton = document.querySelector('#viewStream');
@@ -398,16 +378,44 @@ tweetstreamer.PageController = class {
 
         });
 
+        /*
+          ============================================================================================================================
+          Modal Buttons
+          ============================================================================================================================
+        */
+        const closeTweetModal = document.querySelector('#closeTweetModal');
+        const dismissTweetModal = document.querySelector('#dismissTweetModal');
+
+        closeTweetModal.addEventListener('click', () => {
+
+            // Stop request loop
+            this.stopViewing = true;
+
+        });
+
+        dismissTweetModal.addEventListener('click', () => {
+
+            // Stop request loop
+            this.stopViewing = true;
+
+        });
+
     }
 
     async viewStreamHelper() {
 
         let success = await this.manager.requestViewStream();
 
-        if (success) {
+        if (success && this.stopViewing == false) {
 
             this.updateView(false);
             setTimeout(this.viewStreamHelper(), 50000);
+
+        }
+
+        if (this.stopViewing == true) {
+
+            this.stopViewing = false;
 
         }
 

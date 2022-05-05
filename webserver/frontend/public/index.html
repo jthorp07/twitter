@@ -11,7 +11,18 @@
 </head>
 
 <body id="twitterStreamerHome">
-    <h1>TWITTER STREAMER</h1>
+
+    <!-- Navbar -->
+    <div>
+        <!--
+            TODO:
+                -Create buttons (login, log out)
+                -Set visibility
+        -->
+        <h1>TWITTER STREAMER</h1>
+        <button id="loginButton" type="button" class="btn btn-primary-outline" data-toggle="modal" data-target="#loginModal">Login</button>
+    </div>
+    
 
     <!-- The JS script will add rules here as they are received -->
     <div id="ruleList" class="rule-display">
@@ -99,7 +110,7 @@
         </div>
 
         <div class="rule-add-fields rule-field">
-            <button id="addRule" type="button" class="btn btn-outline-primary rule-field">Add Rule</button>
+            <button id="addRule" type="button" class="btn btn-outline-primary rule-field" data-toggle="modal" data-target="#tagModal">Add Rule</button>
             <button id="clearRule" type="button" class="btn btn-outline-primary rule-field">Clear Rules</button>
             <button id="startStream" type="button" class="btn btn-outline-primary rule-field">Start Streaming</button>
             <button id="stopStream" disabled="true" type="button" class="btn btn-outline-secondary rule-field">Stop
@@ -110,21 +121,67 @@
 
     </div>
 
-    <!-- Modal -->
+    <!-- Tweet Stream Modal -->
     <div id="tweetModal" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
   
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Tweet Stream</h4>
+                    <button id="closeTweetModal" type="button" class="close" data-dismiss="modal" data-target="#tweetModal">&times;</button>
                 </div>
                 <div id="tweetModalBody" class="modal-body">
                     Loading...
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button id="dismissTweetModal" type="button" class="btn btn-default" data-dismiss="modal" data-target="#tweetModal">Close</button>
+                </div>
+            </div>
+  
+        </div>
+    </div>
+
+    <!-- Tag Modal -->
+    <div id="tagModal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+  
+            <!-- Modal content-->
+            <div class="modal-content">
+                
+                <div id="tagModalBody" class="modal-body">
+                    <div class="col">
+                        <label id="tagLabel">Give your rule a tag:</label>
+                        <input type="text" id="tagInput">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="cancelTagModal" type="button" class="btn btn-default btn-danger" data-dismiss="modal" data-target="#tagModal">Cancel</button>
+                    <button id="finishTagModal" type="button" class="btn btn-default" data-dismiss="modal" data-target="#tagModal">Add Rule</button>
+                </div>
+            </div>
+  
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-sm">
+  
+            <!-- Modal content-->
+            <div class="modal-content">
+                
+                <div id="loginModalBody" class="modal-body">
+                    <div class="col">
+                        <label id="userLabel">Username</label>
+                        <input type="text" id="userInput">
+
+                        <label id="passLabel">Password</label>
+                        <input type="text" id="passInput">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="cancelLogin" type="button" class="btn btn-default btn-danger" data-dismiss="modal" data-target="#loginModal">Cancel</button>
+                    <button id="sendLogin" type="button" class="btn btn-default" data-dismiss="modal" data-target="#loginModal">Login</button>
                 </div>
             </div>
   

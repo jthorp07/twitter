@@ -1,11 +1,11 @@
 # Frontend
 
-- [ ] `Add modal for rule tags`
+- [x] `Add modal for rule tags`
 - [x] `At least some popup to view tweets from the stream`
 - [x] `When sending request to stop viewing, break recursive requests` 
 - [ ] `Add authentication so users can log in with their own Twitter Dev accounts without a config file (likely will not be secure)`
-    - [ ] `Add login button`
-    - [ ] `Add login modal`
+    - [x] `Add login button`
+    - [x] `Add login modal`
     - [ ] `Have login modal send login request`
 - [ ] `Add support for advanced mode`
 
