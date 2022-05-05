@@ -104,11 +104,33 @@
             <button id="startStream" type="button" class="btn btn-outline-primary rule-field">Start Streaming</button>
             <button id="stopStream" disabled="true" type="button" class="btn btn-outline-secondary rule-field">Stop
                 Streaming</button>
-            <button id="viewStream" disabled="true" type="button" class="btn btn-outline-secondary rule-field">View
+            <button id="viewStream" disabled="true" type="button" class="btn btn-outline-secondary rule-field" data-toggle="modal" data-target="#tweetModal">View
                 Stream</button>
         </div>
 
     </div>
+
+    <!-- Modal -->
+    <div id="tweetModal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+  
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Tweet Stream</h4>
+                </div>
+                <div id="tweetModalBody" class="modal-body">
+                    Loading...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+  
+        </div>
+    </div>
+
 </body>
 
 <script src="scripts/jquery.min.js"></script>
