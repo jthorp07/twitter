@@ -13,7 +13,9 @@ const rulesUrl = 'https://api.twitter.com/2/tweets/search/stream/rules';
 const streamUrl = 'https://api.twitter.com/2/tweets/search/stream';
 const { BEARER_TOKEN } = require('../../config.json');
 
-let buff = TweetBuffer(15); // Will hold 15 tweets at a time
+// SERVER DATA
+const MAX_TWEETS = 15;
+const Tweets = TweetBuffer(MAX_TWEETS);
 let stop = false;
 
 async function startStreamOnServer() {
@@ -104,10 +106,11 @@ function streamConnect(retryAttempt) {
     stream.on('data', data => {
         try {
             const json = JSON.parse(data);
-            console.log(json);
+            // console.log(json);
 
             // Update buffer
-            buff.add(json);
+            Tweets.add(json);
+            console.log(`[Server]: Tweet Received`);
 
             // A successful connection resets retry count.
             retryAttempt = 0;
@@ -139,10 +142,6 @@ function streamConnect(retryAttempt) {
 
 const app = express();
 
-// SERVER DATA
-const MAX_TWEETS = 10;
-const Tweets = TweetBuffer(MAX_TWEETS);
-
 
 // SERVER SETUP
 app.use(cors());
@@ -153,7 +152,8 @@ app.use('/api/', bodyParser.json());
 
 // SERVER API CALLS
 app.get('/api/stream/tweets/', (req, res) => {
-    res.send(Tweets.getTweets());
+    console.log(`[Server]: Sending Tweets`);
+    res.json(Tweets.getTweets());
     res.end();
 }).delete('/api/stream/tweets/', (req, res) => {
     // TODO: Unsubscribe
