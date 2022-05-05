@@ -152,7 +152,7 @@ app.use('/api/', bodyParser.json());
 
 // SERVER API CALLS
 app.get('/api/stream/tweets/', (req, res) => {
-    console.log(`[Server]: Sending Tweets`);
+    console.log(`[/api/stream/tweets/GET]: Sending Tweets`);
     res.json(Tweets.getTweets());
     res.end();
 }).delete('/api/stream/tweets/', (req, res) => {
