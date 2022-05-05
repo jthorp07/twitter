@@ -1,5 +1,6 @@
 // Imports
 import TwitterRuleManager from './twitter-rule-manager.js'
+import Tweet from './tweet.js';
 
 
 // Namespace
@@ -22,6 +23,8 @@ tweetstreamer.DataManager = class {
         this.currentRule = new TwitterRuleManager();
         this.rules = [];
         this.mode = tweetstreamer.BASIC;
+        /** @type {Tweet[]} */
+        this.latestTweets = [];
 
     }
 
@@ -53,7 +56,36 @@ tweetstreamer.DataManager = class {
 
     changeModes() {
         this.currentRule = new TwitterRuleManager();
-        this.mode = (this.mode == tweetstreamer.ADVANCED) ? tweetstreamer.BASIC: tweetstreamer.ADVANCED;
+        this.mode = (this.mode == tweetstreamer.ADVANCED) ? tweetstreamer.BASIC : tweetstreamer.ADVANCED;
+    }
+
+    formatLatestTweets() {
+
+        // Default message
+        if (this.latestTweets.length == 0) {
+            return 'No Tweets to display yet!<br>If you just started streaming, it may take a few moments for Tweets to start arriving';
+        }
+
+        console.log(`Format: ${JSON.stringify(this.latestTweets)}`);
+
+        try {
+            let formattedTweets = '';
+            this.latestTweets.forEach(tweet => {
+                formattedTweets = formattedTweets.concat(`==============================<br>Tweet ID: ${tweet.data.id}<br>&nbsp&nbspText: ${tweet.data.text}`);
+
+                let matchString = 'Rules Matched: ';
+                tweet.matching_rules.forEach(rule => {
+                    matchString = matchString.concat(`'${rule.tag}', `);
+                });
+                matchString = matchString.substring(0, matchString.length - 2);
+                formattedTweets = formattedTweets.concat(`<br>&nbsp&nbsp${matchString}<br>==============================`);
+            });
+
+            return formattedTweets;
+        } catch (err) {
+            console.log(err);
+            return 'error';
+        }
     }
 
     /**
@@ -102,15 +134,15 @@ tweetstreamer.DataManager = class {
     async requestStopStream() {
         return new Promise((resolve, reject) => {
             fetch(`${tweetstreamer.apiUrl}stream/`, {
-                method: 'DELETE' 
+                method: 'DELETE'
             }).then(data => {
                 if (data.status == 200) {
                     console.log('[Client]: Received success from server');
                     resolve(true); // Success
                     return;
-                } 
+                }
                 console.log('[Client]: Received error from server');
-                    resolve(false);
+                resolve(false);
             });
         });
     }
@@ -121,17 +153,20 @@ tweetstreamer.DataManager = class {
      */
     async requestViewStream() {
         return new Promise((resolve, reject) => {
+            console.log(`[Client]: Requesting Tweets`);
             fetch(`${tweetstreamer.apiUrl}stream/tweets`, {
-                method: 'GET' 
-            }).then(data => {
-                // TODO: Pull up and render Tweets, then request another GET
+                method: 'GET'
+            }).then(response => response.json())
+            .then(data => {
+                console.log(`[Client]: Received Tweets`);
+                this.latestTweets = data;
+                resolve(true);
+                return;
             });
         });
     }
 
-    async viewStreamHelper() {
 
-    }
 
 }
 
@@ -280,7 +315,7 @@ tweetstreamer.PageController = class {
         });
 
         const startStreamButton = document.querySelector('#startStream');
-        startStreamButton.addEventListener('click', async function() {
+        startStreamButton.addEventListener('click', async () => {
 
             /*
              * TODO: Imeplement the following steps:
@@ -297,8 +332,8 @@ tweetstreamer.PageController = class {
             let success = await this.manager.requestStartStream();
 
             if (success) {
-                
-                
+
+
                 console.log('[Client]: Enabling buttons');
                 let stopBtn = document.querySelector('#stopStream');
                 let viewBtn = document.querySelector('#viewStream');
@@ -309,10 +344,10 @@ tweetstreamer.PageController = class {
                 let newStop = oldStop.replace('secondary', 'primary');
                 let newView = oldView.replace('secondary', 'primary');
 
-                stopBtn.removeAttribute('disabled');  
-                stopBtn.setAttribute('class', newStop);              
+                stopBtn.removeAttribute('disabled');
+                stopBtn.setAttribute('class', newStop);
                 viewBtn.removeAttribute('disabled');
-                viewBtn.setAttribute('class', newView); 
+                viewBtn.setAttribute('class', newView);
 
             } else {
                 // TODO: Indicate failure
@@ -338,9 +373,9 @@ tweetstreamer.PageController = class {
 
                 let newStop = oldStop.replace('primary', 'secondary');
                 let newView = oldView.replace('primary', 'secondary');
-  
-                stopBtn.setAttribute('class', newStop);              
-                viewBtn.setAttribute('class', newView); 
+
+                stopBtn.setAttribute('class', newStop);
+                viewBtn.setAttribute('class', newView);
 
                 stopBtn.setAttribute('disabled', 'true');
                 viewBtn.setAttribute('disabled', 'true');
@@ -359,17 +394,22 @@ tweetstreamer.PageController = class {
         const viewStreamButton = document.querySelector('#viewStream');
         viewStreamButton.addEventListener('click', async () => {
 
-            let success = await this.manager.requestViewStream();
-
-            if (success) {
-                
-
-            } else {
-                // TODO: Indicate failure
-
-            }
+            this.viewStreamHelper();
 
         });
+
+    }
+
+    async viewStreamHelper() {
+
+        let success = await this.manager.requestViewStream();
+
+        if (success) {
+
+            this.updateView(false);
+            setTimeout(this.viewStreamHelper(), 50000);
+
+        }
 
     }
 
@@ -409,7 +449,10 @@ tweetstreamer.PageController = class {
         }
 
         // Update Current Rule
-        document.querySelector('#currentRule').innerHTML = `Current Rule: ${this.manager.getCurrentRule()}`
+        document.querySelector('#currentRule').innerHTML = `Current Rule: ${this.manager.getCurrentRule()}`;
+
+        // Update tweet feed
+        document.querySelector('#tweetModalBody').innerHTML = this.manager.formatLatestTweets();
 
     }
 }
