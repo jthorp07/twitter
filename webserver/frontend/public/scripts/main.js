@@ -192,7 +192,11 @@ tweetstreamer.PageController = class {
      */
     setListeners() {
 
-        /** @type {HTMLInputElement} */
+        /*
+          ============================================================================================================================
+          Input Elements
+          ============================================================================================================================
+        */
         const keywordInput = document.querySelector('#ruleKeywordInput');
         keywordInput.addEventListener('input', () => {
 
@@ -361,6 +365,7 @@ tweetstreamer.PageController = class {
 
             } else {
 
+                // Add rule & update (in advanced mode, this is all that's needed)
                 this.manager.addCurrentRule();
                 this.updateView(true);
 
@@ -381,6 +386,10 @@ tweetstreamer.PageController = class {
 
             if (success) {
 
+                /*
+                  Grab old button classes and change from
+                  secondary (gray color) to primary (blue color)
+                */
                 console.log('[Client]: Enabling buttons');
                 let stopBtn = document.querySelector('#stopStream');
                 let viewBtn = document.querySelector('#viewStream');
@@ -408,6 +417,11 @@ tweetstreamer.PageController = class {
 
             if (success) {
 
+
+                /*
+                  Grab old button classes and change from
+                  primary (blue color) to secondary (gray color)
+                */
                 console.log('[Client]: Disabling buttons');
 
                 let stopBtn = document.querySelector('#stopStream');
