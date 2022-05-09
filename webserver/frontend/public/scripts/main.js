@@ -196,9 +196,40 @@ tweetstreamer.PageController = class {
         const keywordInput = document.querySelector('#ruleKeywordInput');
         keywordInput.addEventListener('input', () => {
 
+            // If in advanced mode, ignore
+            if (this.manager.mode == tweetstreamer.ADVANCED) return;
+
             // Update rule by setting
             this.manager.currentRule.keywords = keywordInput.value;
             this.updateView(false);
+
+        });
+
+        const advancedRule = document.querySelector('#ruleInput');
+        advancedRule.addEventListener('input', () => {
+
+            if (this.manager.mode == tweetstreamer.BASIC) return;
+
+            this.manager.currentRule.keywords = advancedRule.value;
+            this.updateView(false);
+
+        });
+
+        const advancedTag = document.querySelector('#tagInput');
+        advancedTag.addEventListener('input', () => {
+
+            if (this.manager.mode == tweetstreamer.BASIC) return;
+
+            this.manager.currentRule.tag = advancedTag.value;
+
+        });
+
+        const modalTag = document.querySelector('#tagModalInput');
+        modalTag.addEventListener('input', () => {
+
+            if (this.manager.mode == tweetstreamer.ADVANCED) return;
+
+            this.manager.currentRule.tag = modalTag.value;
 
         });
 
@@ -211,17 +242,35 @@ tweetstreamer.PageController = class {
         const basicButton = document.querySelector('#basicMode');
         basicButton.addEventListener('click', () => {
             this.manager.changeModes();
+
+            // Hide advanced, bring out basic bar
             document.querySelector('#basicBar').removeAttribute('style');
             document.querySelector('#currentRule').removeAttribute('style');
             document.querySelector('#advancedBar').setAttribute('style', 'display:none');
+
+            // Add tag modal toggle
+            document.querySelector('#addRule').setAttribute('data-toggle', 'modal');
+            document.querySelector('#addRule').setAttribute('data-target', '#tagModal');
+
+            this.updateView(false);
+
         });
 
         const advancedButton = document.querySelector('#advancedMode');
         advancedButton.addEventListener('click', () => {
             this.manager.changeModes();
+
+            // Hide basic, bring out advanced bar
             document.querySelector('#advancedBar').removeAttribute('style');
             document.querySelector('#basicBar').setAttribute('style', 'display:none');
             document.querySelector('#currentRule').setAttribute('style', 'display:none');
+
+            // Remove tag modal toggle
+            document.querySelector('#addRule').removeAttribute('data-toggle');
+            document.querySelector('#addRule').removeAttribute('data-target');
+
+            this.updateView(false);
+
         });
 
         /*
@@ -305,8 +354,18 @@ tweetstreamer.PageController = class {
 
         const addRuleButton = document.querySelector('#addRule');
         addRuleButton.addEventListener('click', () => {
-            this.manager.addCurrentRule();
-            this.updateView(true);
+
+            if (this.manager.mode == tweetstreamer.BASIC) {
+                
+                // Just open tag modal -> tag modal should do rest
+
+            } else {
+
+                this.manager.addCurrentRule();
+                this.updateView(true);
+
+            }
+            
         });
 
         const clearRuleButton = document.querySelector('#clearRule');
@@ -397,6 +456,14 @@ tweetstreamer.PageController = class {
 
             // Stop request loop
             this.stopViewing = true;
+
+        });
+
+        const tagModalBtn = document.querySelector('#finishTagModal');
+        tagModalBtn.addEventListener('click', () => {
+
+            this.manager.addCurrentRule();
+            this.updateView(true);
 
         });
 

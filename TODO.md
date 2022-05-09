@@ -7,7 +7,8 @@
     - [x] `Add login button`
     - [x] `Add login modal`
     - [ ] `Have login modal send login request`
-- [ ] `Add support for advanced mode`
+- [x] `Add support for advanced mode`
+- [x] `Add full tag support`
 
 # Backend
 
