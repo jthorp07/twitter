@@ -1,0 +1,53 @@
+.rule-add {
+
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    background-color: lightskyblue;
+    border-radius: 5px;
+
+}
+
+.rule-add-fields {
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    background-color: white;
+    padding: 10px;
+    margin: 20px;
+    border-radius: 3px;
+}
+
+.rule-field {
+
+    margin: 20px;
+
+}
+
+.rule-display {
+
+    margin: 10px;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    background-color: lightskyblue;
+    border-radius: 5px;
+
+}
+
+.add-rule-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    background-color: white;
+}
+
+#ruleList {
+    color: white;
+}
+
+body {
+    background-color: white;
+}
