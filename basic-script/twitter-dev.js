@@ -17,7 +17,6 @@
 
 
 // Imports
-const { Client } = require('twitter-api-sdk');
 const needle = require('needle');
 const { BEARER_TOKEN } = require('../config.json');
 

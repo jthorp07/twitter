@@ -18,10 +18,9 @@
 
 
 // Imports
-const { Client } = require('twitter-api-sdk');
 const needle = require('needle');
 const prompt = require('prompt-sync')();
-const { API_KEY, API_SECRET, BEARER_TOKEN } = require('../config.json');
+const { BEARER_TOKEN } = require('../config.json');
 
 // Globals for Twitter connection
 const rulesUrl = 'https://api.twitter.com/2/tweets/search/stream/rules';
