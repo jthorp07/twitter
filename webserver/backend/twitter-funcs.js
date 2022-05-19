@@ -6,24 +6,31 @@
  * at once.
  */
 
+const {TweetBuffer} = require('./tweet-buffer.js');
+const needle = require('needle');
+
+const rulesUrl = 'https://api.twitter.com/2/tweets/search/stream/rules';
+const streamUrl = 'https://api.twitter.com/2/tweets/search/stream';
+
 module.exports = {
 
     /**
+     * 
      * 
      * @param {string} bearer_token User's API token
      * @returns {Promise<Object>} Existing rules on stream
      */
     async getAllRules(bearer_token) {
 
-        return new Promise((resolve, reject) => {
+        return new Promise(async function(resolve, reject) {
             const response = await needle('get', rulesUrl, {
                 headers: {
                     "authorization": `Bearer ${bearer_token}`
                 }
-            })
+            });
 
             if (response.statusCode !== 200) {
-                console.log("Error:", response.statusMessage, response.statusCode)
+                console.log("Error:", response.statusMessage, response.statusCode);
                 reject(response.body);
             }
 
@@ -34,13 +41,15 @@ module.exports = {
 
     /**
      * 
+     * 
      * @param {Object} rules Formatted rule IDs to be deleted
      * @param {string} bearer_token User's bearer token
      * @returns {Promise<boolean>} Success or failure
      */
     async deleteAllRules(rules, bearer_token) {
 
-        return new Promise((resolve) => {
+        return new Promise(async function(resolve) {
+
             if (!Array.isArray(rules.data)) {
                 resolve(false);
                 return;
@@ -52,14 +61,14 @@ module.exports = {
                 "delete": {
                     "ids": ids
                 }
-            }
+            };
 
             const response = await needle('post', rulesUrl, data, {
                 headers: {
                     "content-type": "application/json",
                     "authorization": `Bearer ${bearer_token}`
                 }
-            })
+            });
 
             if (response.statusCode !== 200) {
                 console.error(response.body);
@@ -69,12 +78,10 @@ module.exports = {
             resolve(true);
             return;
         });
-
-
-
     },
 
     /**
+     * 
      * 
      * @param {Array} rules Rules to be set
      * @param {string} bearer_token User's API token
@@ -82,7 +89,7 @@ module.exports = {
      */
     async setRules(rules, bearer_token) {
 
-        return new Promise((resolve) => {
+        return new Promise(async function(resolve) {
             const data = {
                 "add": rules
             }
@@ -96,7 +103,6 @@ module.exports = {
 
             if (response.statusCode !== 201) {
                 console.error(JSON.stringify(response.body));
-
                 resolve(false);
                 return;
             }
@@ -106,62 +112,25 @@ module.exports = {
         });
     },
 
-
     /**
      * 
-     * @param {number} retryAttempt The attempt number of this function
+     * 
      * @param {string} bearer_token The user's API token
-     * @returns {Promise<boolean>} Success or failure
+     * @returns {Promise<NodeJS.ReadableStream>} Created stream and buffer?
      */
-    streamConnect(retryAttempt, bearer_token) {
+    streamConnect(bearer_token) {
 
-        const stream = needle.get(streamUrl, {
-            headers: {
-                "User-Agent": "v2FilterStreamJS",
-                "Authorization": `Bearer ${bearer_token}`
-            },
-            timeout: 20000
+        return new Promise(async function(resolve, reject) {
+
+            const stream = needle.get(streamUrl, {
+                headers: {
+                    "User-Agent": "v2FilterStreamJS",
+                    "Authorization": `Bearer ${bearer_token}`
+                },
+                timeout: 20000
+            });            
+            resolve(stream);
+            return;
         });
-
-        stream.on('data', data => {
-            try {
-                const json = JSON.parse(data);
-                // console.log(json);
-
-                // Update buffer
-                Tweets.add(json);
-                console.log(`[Server]: Tweet Received`);
-
-                // A successful connection resets retry count.
-                retryAttempt = 0;
-            } catch (e) {
-                if (data.detail === "This stream is currently at the maximum allowed connection limit.") {
-                    console.log(data.detail)
-
-                    // TODO: Kill stream on server
-
-                } else {
-                    // Keep alive signal received. Do nothing.
-                }
-            }
-        }).on('err', error => {
-            if (error.code !== 'ECONNRESET') {
-                console.log(error.code);
-
-                // TODO: Kill stream on server
-
-            } else {
-                // This reconnection logic will attempt to reconnect when a disconnection is detected.
-                // To avoid rate limits, this logic implements exponential backoff, so the wait time
-                // will increase if the client cannot reconnect to the stream. 
-                setTimeout(() => {
-                    console.warn("A connection error occurred. Reconnecting...")
-                    streamConnect(++retryAttempt);
-                }, 2 ** retryAttempt)
-            }
-        });
-        return stream;
-
     }
-
 }

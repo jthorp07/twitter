@@ -7,6 +7,7 @@
     - [x] `Add login button`
     - [x] `Add login modal`
     - [ ] `Have login modal send login request`
+    - [ ] `Refactor to handle new api endpoints`
 - [x] `Add support for advanced mode`
 - [x] `Add full tag support`
 
@@ -14,5 +15,5 @@
 
 - [x] `Make sure stop request actually resets stream rules to prevent going over monthly Tweet limit`
 - [ ] `Add authentication so users can log in with their own Twitter Dev accounts without a config file (likely will not be secure)`
-    - [ ] `Add api endpoint to receive logins`
+    - [x] `Add api endpoint to receive logins`
     - [ ] `Refactor streaming to handle many streams`
