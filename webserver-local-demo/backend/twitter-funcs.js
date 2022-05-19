@@ -15,7 +15,7 @@ module.exports = {
      */
     async getAllRules(bearer_token) {
 
-        return new Promise((resolve, reject) => {
+        return new Promise(async function(resolve, reject) {
             const response = await needle('get', rulesUrl, {
                 headers: {
                     "authorization": `Bearer ${bearer_token}`
@@ -40,7 +40,7 @@ module.exports = {
      */
     async deleteAllRules(rules, bearer_token) {
 
-        return new Promise((resolve) => {
+        return new Promise(async function (resolve) {
             if (!Array.isArray(rules.data)) {
                 resolve(false);
                 return;
@@ -82,7 +82,7 @@ module.exports = {
      */
     async setRules(rules, bearer_token) {
 
-        return new Promise((resolve) => {
+        return new Promise(async function (resolve) {
             const data = {
                 "add": rules
             }
