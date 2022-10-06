@@ -1,6 +1,5 @@
 const { TweetBuffer } = require("./tweet-buffer");
 const { streamConnect } = require('./twitter-funcs');
-const CondVar = require('condition-variable');
 const EventEmitter = require('events');
 
 class User {
@@ -22,7 +21,6 @@ class User {
         this.fiveSec = true;
         this.newData = false;
         this.keepAlive = true;
-        this.cond = new CondVar();
         this.kill = false;
 
         // Connect Stream

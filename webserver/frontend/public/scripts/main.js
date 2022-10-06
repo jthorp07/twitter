@@ -5,12 +5,11 @@ import Tweet from './tweet.js';
 
 // Namespace
 var tweetstreamer = tweetstreamer || {};
-
-// Base URL for accessing the backend
-tweetstreamer.apiUrl = 'http://localhost:3000/api/';
 tweetstreamer.BASIC = 0;
 tweetstreamer.ADVANCED = 1;
 
+// Base URL for accessing the backend
+tweetstreamer.apiUrl = 'http://localhost:3000/api/';
 
 /**
  * Manager
@@ -25,6 +24,8 @@ tweetstreamer.DataManager = class {
         this.mode = tweetstreamer.BASIC;
         /** @type {Tweet[]} */
         this.latestTweets = [];
+        this.user = undefined;
+        this.token = undefined;
 
     }
 
@@ -66,8 +67,6 @@ tweetstreamer.DataManager = class {
             return 'No Tweets to display yet!<br>If you just started streaming, it may take a few moments for Tweets to start arriving';
         }
 
-        console.log(`Format: ${JSON.stringify(this.latestTweets)}`);
-
         try {
             let formattedTweets = '';
             this.latestTweets.forEach(tweet => {
@@ -95,36 +94,30 @@ tweetstreamer.DataManager = class {
     async requestStartStream() {
         return new Promise((resolve, reject) => {
             fetch(`${tweetstreamer.apiUrl}stream/`, {
-                method: 'PUT',
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    token: this.token,
                     rules: this.rules
                 })
             }).then(data => {
 
                 // Responses: 200 success, 400 malformed, 502 stream error
-                console.log(data);
                 if (data.status == 200) {
-                    console.log('[Client]: Received success from server');
                     resolve(true);
                     return;
                 } else if (data.status == 400) {
                     // TODO: Prompt malformed request
-                    console.log('[Client]: Received error 400 from server');
                     resolve(false);
                     return;
                 } else if (data.status == 502) {
                     // TODO: Prompt server error
-                    console.log('[Client]: Received error 502 from server');
                     resolve(false);
                     return;
                 }
-                console.log('[Client]: Received error from server');
                 resolve(false);
-
             });
         });
-
     }
 
     /**
@@ -134,14 +127,16 @@ tweetstreamer.DataManager = class {
     async requestStopStream() {
         return new Promise((resolve, reject) => {
             fetch(`${tweetstreamer.apiUrl}stream/`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token: this.token,
+                })
             }).then(data => {
                 if (data.status == 200) {
-                    console.log('[Client]: Received success from server');
                     resolve(true); // Success
                     return;
                 }
-                console.log('[Client]: Received error from server');
                 resolve(false);
             });
         });
@@ -153,12 +148,15 @@ tweetstreamer.DataManager = class {
      */
     async requestViewStream() {
         return new Promise((resolve, reject) => {
-            console.log(`[Client]: Requesting Tweets`);
+            console.log(`[Client]: Requesting Tweets with token ${this.token}`);
             fetch(`${tweetstreamer.apiUrl}stream/tweets`, {
-                method: 'GET'
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token: this.token,
+                })
             }).then(response => response.json())
                 .then(data => {
-                    console.log(`[Client]: Received Tweets`);
                     this.latestTweets = data;
                     resolve(true);
                     return;
@@ -166,8 +164,59 @@ tweetstreamer.DataManager = class {
         });
     }
 
+    /**
+     * @param {string} token
+     * 
+     * @returns {Promise<boolean>}
+     */
+    async requestLogin(token) {
+        return new Promise((resolve, reject) => {
+            console.log(`[Client]: Requesting Login`);
+            fetch(`${tweetstreamer.apiUrl}login/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: token })
+            }).then(res => {
+                console.log(`[Client]: Received Response`);
+                if (res.status == 200) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+                return;
+            });
+        });
+    }
 
+    async login(user, token) {
+        this.user = user;
+        this.token = token;
+    }
 
+    async keepAlive() {
+
+        setTimeout(() => {
+
+            if (!this.token) return;
+
+            console.log(`[Client]: Requesting Login`);
+            fetch(`${tweetstreamer.apiUrl}login/`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: token })
+            }).then(response => response.json())
+                .then(data => {
+                    console.log(`[Client]: Received Response`);
+                    if (data == 200) {
+                        this.keepAlive();
+                    } else {
+                        return;
+                    }
+                    return;
+                });
+
+        }, 300000 /* 5 minutes */);
+    }
 }
 
 
@@ -360,7 +409,7 @@ tweetstreamer.PageController = class {
         addRuleButton.addEventListener('click', () => {
 
             if (this.manager.mode == tweetstreamer.BASIC) {
-                
+
                 // Just open tag modal -> tag modal should do rest
 
             } else {
@@ -370,7 +419,7 @@ tweetstreamer.PageController = class {
                 this.updateView(true);
 
             }
-            
+
         });
 
         const clearRuleButton = document.querySelector('#clearRule');
@@ -478,6 +527,23 @@ tweetstreamer.PageController = class {
 
             this.manager.addCurrentRule();
             this.updateView(true);
+
+        });
+
+        const loginBtn = document.querySelector('#sendLogin');
+        loginBtn.addEventListener('click', async () => {
+
+            let username = document.querySelector('#userInput').value;
+            let password = document.querySelector('#passInput').value;
+
+            let success = this.manager.requestLogin(password);
+
+            if (success == false) {
+                // TODO: Fail login
+                return;
+            }
+
+            this.manager.login(username, password);
 
         });
 

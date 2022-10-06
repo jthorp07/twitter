@@ -6,7 +6,7 @@ const cors = require('cors');
 const EventEmitter = require('events');
 
 // Local imports
-const { getAllRules, deleteAllRules, setRules, streamConnect } = require('./twitter-funcs.js');
+const { getAllRules, deleteAllRules, setRules } = require('./twitter-funcs.js');
 const { User } = require('./user.js');
 
 // SERVER DATA
@@ -42,6 +42,7 @@ const app = express();
  * @returns {User} user with token
  */
 function findUser(token) {
+
     for (let i = 0; i < users.length; i++) {
         if (users[i].token == token) {
             return users[i];
@@ -86,15 +87,17 @@ API ENDPOINTS
  * 
  *  4. Set keepAlive for user
  */
-app.get('/api/stream/tweets/', async function (req, res) {
+app.put('/api/stream/tweets/', async function (req, res) {
 
     let token = req.body.token;
     let user = findUser(token);
-    user.keepAlive = true;
     if (!user) {
-        res.sendStatus(/* TODO: Error */0);
+        res.sendStatus(404);
         res.end();
+        return;
     }
+
+    user.keepAlive = true;
     res.json(user.tweets.getTweets());
     res.end();
 });
@@ -132,8 +135,9 @@ app.post('/api/stream/', async function (req, res) {
 
     // Failed to find user
     if (!user) {
-        res.sendStatus(/* TODO: Error status */0);
+        res.sendStatus(404);
         res.end();
+        return;
     }
 
     // Set keepalive
@@ -141,13 +145,13 @@ app.post('/api/stream/', async function (req, res) {
 
     // Set new rules for user's stream
     try {
-        let oldRules = await getAllRules(token);
-        let success = await deleteAllRules(oldRules, token);
+
+        let success = await deleteAllRules(token);
 
         // Failed to delete rules
         if (success == false) {
 
-            res.sendStatus(/* TODO: Error status */0);
+            res.sendStatus(500);
             res.end();
             return;
         }
@@ -156,7 +160,7 @@ app.post('/api/stream/', async function (req, res) {
         success = setRules(rules, token);
         if (success == false) {
 
-            res.sendStatus(/* TODO: Error status */0);
+            res.sendStatus(501);
             res.end();
             return;
         }
@@ -168,7 +172,7 @@ app.post('/api/stream/', async function (req, res) {
     } catch (err) {
 
         // Error failure
-        res.sendStatus(/* TODO: Error status */0);
+        res.sendStatus(400);
         res.end();
         return;
     }
@@ -177,16 +181,15 @@ app.post('/api/stream/', async function (req, res) {
     let token = req.body.token;
     let user = findUser(token);
     if (!user) {
-        res.sendStatus(/* TODO: Error status */0);
+        res.sendStatus(404);
         res.end();
         return;
     }
     try {
 
-        let oldRules = await getAllRules(token);
-        let success = await deleteAllRules(oldRules, token);
+        let success = await deleteAllRules(token);
         if (success == false) {
-            res.sendStatus(/* TODO: Error status */0);
+            res.sendStatus(500);
             res.end();
             return;
         }
@@ -197,7 +200,7 @@ app.post('/api/stream/', async function (req, res) {
     } catch (err) {
 
         // Error failure
-        res.sendStatus(/* TODO: Error status */0);
+        res.sendStatus(501);
         res.end();
         return;
     }
@@ -239,10 +242,11 @@ app.post('/api/login/', async function (req, res) {
             res.end();
             return;
         }
-
         // Create user
-        let newUser = new User(token, userKiller);
+        let newUser = new User(MAX_TWEETS, token, userKiller);
         users.push(newUser);
+        res.sendStatus(200);
+        res.end();
     } catch (err) {
         console.error(err);
         res.sendStatus(500); // Uncaught error
@@ -253,16 +257,18 @@ app.post('/api/login/', async function (req, res) {
 
     let token = req.body.token;
 
-    // If user exists, set keepAlive
-    let user = findUser(token);
+    for (let i = 0; i < users.length; i++) {
+        if (users[i].token == token) {
+            users[i].keepAlive = true;
+             // Respond success
+            res.sendStatus(200);
+            res.end();
+            return;
+        }
+    }
 
-    // Create new user
-    user = new User(MAX_TWEETS, token, userKiller);
-    users.push(user);
-
-    // Respond success
-    res.sendStatus(200);
-    res.end();
+   res.sendStatus(404); // user not found
+   res.end();
 
 }).delete('/api/login/', async function (req, res) {
 
