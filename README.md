@@ -380,3 +380,13 @@ Example: `'value':'dog OR cat AND has:media'` Makes a rule that pulls Tweets wit
 
 ### **Explore them all**
 You can make fairly complex rules by including and excluding many keywords and flags! Go ahead and explore all of the possible rule types [here](https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/integrate/build-a-rule) and see what kind of filters you can make!
+
+
+
+# **Known Issues with Webserver**
+
+Currently there are some issues with the webserver's responsiveness to errors server-side. Due to this, there may be some confusion when stuff doesn't work. Here's a list of the most common issues users might encounter:
+
+* PROBLEM: I logged in and the login was successful, but it won't let me do anything after!
+    - This is most likely caused by your stream's connection limit being reached. If you try logging in again in 5-10 minutes, the issue should be resolved
+    
