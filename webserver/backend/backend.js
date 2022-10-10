@@ -273,11 +273,19 @@ app.post('/api/login/', async function (req, res) {
 }).delete('/api/login/', async function (req, res) {
 
     let token = req.body.token;
+    let success = false;
     users.forEach((user, i) => {
         if (user.token == token) users.splice(i, 1);
+        res.sendStatus(200);
+        res.end();
+        success = true;
     });
-    res.sendStatus(200);
-    res.end();
+    
+    if (!success) {
+        res.sendStatus(404);
+        res.end();
+    }
+
 });
 
 app.listen(3000);

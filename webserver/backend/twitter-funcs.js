@@ -20,6 +20,8 @@ const streamUrl = 'https://api.twitter.com/2/tweets/search/stream';
  */
 async function getAllRules(bearer_token) {
 
+    console.log(bearer_token);
+
     return new Promise(async function (resolve, reject) {
         const response = await needle('get', rulesUrl, {
             headers: {

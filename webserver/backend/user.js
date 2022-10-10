@@ -45,6 +45,7 @@ class User {
                         console.log(data.detail);
                         this.kill = true;
                         killEmitter.emit('kill', this.token);
+                        return;
                     } else {
                         // Keep alive signal received. Do nothing.
                     }
@@ -65,7 +66,9 @@ class User {
                 }
             });
         });
+
     }
+
 }
 
 module.exports = {

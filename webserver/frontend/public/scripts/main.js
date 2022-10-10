@@ -107,7 +107,6 @@ tweetstreamer.DataManager = class {
                     resolve(true);
                     return;
                 } else if (data.status == 400) {
-                    // TODO: Prompt malformed request
                     resolve(false);
                     return;
                 } else if (data.status == 502) {
@@ -171,19 +170,19 @@ tweetstreamer.DataManager = class {
      */
     async requestLogin(token) {
         return new Promise((resolve, reject) => {
-            console.log(`[Client]: Requesting Login`);
             fetch(`${tweetstreamer.apiUrl}login/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ token: token })
             }).then(res => {
-                console.log(`[Client]: Received Response`);
                 if (res.status == 200) {
                     resolve(true);
                 } else {
                     resolve(false);
                 }
                 return;
+            }).catch(err => {
+                resolve(false);
             });
         });
     }
@@ -193,20 +192,35 @@ tweetstreamer.DataManager = class {
         this.token = token;
     }
 
+    async requestLogout() {
+        return new Promise((resolve, reject) => {
+            fetch(`${tweetstreamer.apiUrl}login/`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    token: this.token
+                })
+            })
+        });
+    }
+
+    async logout() {
+        this.user = null;
+        this.token = null;
+    }
+
     async keepAlive() {
 
         setTimeout(() => {
 
             if (!this.token) return;
 
-            console.log(`[Client]: Requesting Login`);
             fetch(`${tweetstreamer.apiUrl}login/`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ token: token })
             }).then(response => response.json())
                 .then(data => {
-                    console.log(`[Client]: Received Response`);
                     if (data == 200) {
                         this.keepAlive();
                     } else {
@@ -215,7 +229,7 @@ tweetstreamer.DataManager = class {
                     return;
                 });
 
-        }, 300000 /* 5 minutes */);
+        }, 300000 /* 5 minutes TODO: Replace with var instead of hardcoded timeout time */);
     }
 }
 
@@ -439,7 +453,6 @@ tweetstreamer.PageController = class {
                   Grab old button classes and change from
                   secondary (gray color) to primary (blue color)
                 */
-                console.log('[Client]: Enabling buttons');
                 let stopBtn = document.querySelector('#stopStream');
                 let viewBtn = document.querySelector('#viewStream');
 
@@ -455,7 +468,7 @@ tweetstreamer.PageController = class {
                 viewBtn.setAttribute('class', newView);
 
             } else {
-                // TODO: Indicate failure
+                this.showError("Unable to start streaming");
             }
         });
 
@@ -471,8 +484,6 @@ tweetstreamer.PageController = class {
                   Grab old button classes and change from
                   primary (blue color) to secondary (gray color)
                 */
-                console.log('[Client]: Disabling buttons');
-
                 let stopBtn = document.querySelector('#stopStream');
                 let viewBtn = document.querySelector('#viewStream');
                 let oldStop = stopBtn.getAttribute('class');
@@ -489,7 +500,7 @@ tweetstreamer.PageController = class {
                 this.updateView(true);
 
             } else {
-                // TODO: Indicate failure
+                this.showError("An error occured while stopping your stream");
             }
         });
 
@@ -536,14 +547,30 @@ tweetstreamer.PageController = class {
             let username = document.querySelector('#userInput').value;
             let password = document.querySelector('#passInput').value;
 
-            let success = this.manager.requestLogin(password);
+            let success = await this.manager.requestLogin(password);
 
-            if (success == false) {
-                // TODO: Fail login
+            if (!success) {
+                this.showError("Login Error<br><br>Check your credentials and try again!");
                 return;
             }
 
             this.manager.login(username, password);
+            this.updateView();
+
+        });
+
+        const logoutBtn = document.querySelector('#sendLogout');
+        logoutBtn.addEventListener('click', async () => {
+
+            let success = this.manager.requestLogout();
+
+            if (!success) {
+                this.showError("Oops... something went wrong logging you out");
+                return;
+            }
+
+            this.manager.logout();
+            this.updateView();
 
         });
 
@@ -566,6 +593,11 @@ tweetstreamer.PageController = class {
 
         }
 
+    }
+
+    showError(text) {
+        document.querySelector("#errorModalText").innerHTML = text;
+        $("#errorModal").modal('toggle');
     }
 
     /**
@@ -608,6 +640,25 @@ tweetstreamer.PageController = class {
 
         // Update tweet feed
         document.querySelector('#tweetModalBody').innerHTML = this.manager.formatLatestTweets();
+
+        // Update login status
+        if (this.manager.user) {
+
+            document.querySelector('#userWelcome').innerHTML = `Welcome, ${this.manager.user}`;
+            document.querySelector('#loginButton').setAttribute('style', 'display:none');
+            document.querySelector('#logoutButton').removeAttribute('style');
+
+        } else {
+
+            document.querySelector('#userWelcome').innerHTML = `Welcome, guest. Please log in with your Twitter API Bearer Token to use this site`;
+            document.querySelector('#logoutButton').setAttribute('style', 'display:none');
+            document.querySelector('#loginButton').removeAttribute('style');
+
+        }
+
+        // clear login modal
+        document.querySelector("#userInput").value = "";
+        document.querySelector("#passInput").value = "";
 
     }
 }
